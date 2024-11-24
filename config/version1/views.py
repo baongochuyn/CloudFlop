@@ -1,84 +1,82 @@
 import os
 import uuid
+import base64
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseForbidden
 from cryptography.fernet import Fernet
-from .models import File
 
-from django.http import JsonResponse
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.contrib import messages
 
 def upload(request):
     if request.method == 'POST':
         file = request.FILES['document']
-        password = request.POST["password"].encode() 
-        key = Fernet.generate_key() #génére une clé de chiffrement unique
-        cryptogram = Fernet(key) # crée un objet fernet avec la clé généré pour utiliser les fonctions de chiffrement et dechiffrement
-        encrypted_password = cryptogram.encrypt(password)  #chiffre le mot de passe 
+        password = request.POST["password"].encode()  # Encode the password
         
-        # Créer un nom unique pour le fichier
+        # Generate an encryption key
+        key = Fernet.generate_key()  # Unique encryption key
+        cryptogram = Fernet(key)  # Fernet object for encryption and decryption
+        encrypted_password = cryptogram.encrypt(password)  # Encrypt the password
+        
+        # Create a unique file name
         file_name = str(uuid.uuid4()) + os.path.splitext(file.name)[-1]
         file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
         
-        # Enregistrer le fichier sur le système de fichiers
-        fs = FileSystemStorage()
-        fs.save(file_path, file)
-
-        # Sauvegarder le mot de passe chiffré dans un fichier
-        encrypted_password_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name + '.key')
-        key_and_password = key + b" " + encrypted_password
-        with open(encrypted_password_path, 'wb') as key_file:
-            key_file.write(key_and_password)
-
-        # Générer un lien unique pour accéder au fichier
-        file_url = request.build_absolute_uri('/media/uploads/' + file_name)
-
-        return render(request, 'download.html', {'file_url': file_url})
+        # Save the file to the filesystem
+        fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'uploads'))
+        fs.save(file_name, file)
+        
+        # Save the encrypted password and key to a metadata dictionary
+        metadata = {
+            "key": base64.urlsafe_b64encode(key).decode('utf-8'),  # Encode key for safe URL transmission
+            "encrypted_password": encrypted_password.decode('utf-8'),  # Decode for safe storage
+            "file_name": file_name
+        }
+        
+        # Encrypt metadata and encode for the URL
+        metadata_str = f"{metadata['key']}|{metadata['encrypted_password']}|{metadata['file_name']}"
+        encrypted_metadata = base64.urlsafe_b64encode(metadata_str.encode('utf-8')).decode('utf-8')
+        
+        # Generate the unique encrypted URL
+        file_url = request.build_absolute_uri(f'/download/{encrypted_metadata}/')
+        
+        return render(request, 'upload.html', {'file_url': file_url})
+    
     return render(request, 'upload.html')
 
-def download(request):
-    if request.method == 'POST':
-        file_url = request.POST.get("file_url")  # Récupérer le lien du fichier
-        password = request.POST.get("password").encode()  # Récupérer le mot de passe
-
-        # Extraire le nom du fichier depuis l'URL
-        file_name = file_url.split("/")[-1]  
-        file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
-
-        # Vérifier si le fichier existe
-        if not os.path.exists(file_path):
-            return HttpResponse("Fichier non trouvé", status=404)
-
-        # Vérifier si le fichier clé existe
-        encrypted_password_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name + '.key')
+def download(request, encrypted_metadata):
+    try:
+        # Decode and split metadata
+        metadata_str = base64.urlsafe_b64decode(encrypted_metadata).decode('utf-8')
+        key, encrypted_password, file_name = metadata_str.split('|')
         
-        if not os.path.exists(encrypted_password_path):
-            return HttpResponse("Clé de chiffrement manquante", status=404)
-
-        # Lire la clé brute depuis le fichier (clé Fernet brute)
-        with open(encrypted_password_path, 'rb') as key_file:
-            key_and_password = key_file.read()  # Clé Fernet brute
-        [key, encrypted_password] = key_and_password.split(b" ")
-        print(key)
-        print(len(encrypted_password))
-        cryptogram = Fernet(key)  # Utiliser cette clé brute pour déchiffrer le mot de passe
-
-        # Déchiffrer le mot de passe
-        try:
-            decrypted_password = cryptogram.decrypt(encrypted_password).decode()
-        except Exception as e:
-            return HttpResponse(f"Erreur de déchiffrement: {str(e)}", status=400)
-
-        # Comparer les mots de passe
-        if decrypted_password == password.decode():
-            # Le mot de passe est valide, permettre le téléchargement du fichier
-            with open(file_path, 'rb') as f:
-                response = HttpResponse(f.read(), content_type="application/octet-stream")
-                response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        # Get the password from the user
+        if request.method == 'POST':
+            password = request.POST["password"].encode()
+            
+            # Decrypt the encrypted password using the key
+            cryptogram = Fernet(base64.urlsafe_b64decode(key))
+            decrypted_password = cryptogram.decrypt(encrypted_password.encode())
+            
+            # Check if the passwords match
+            if decrypted_password != password:
+                messages.error(request,"Invalid password")
+                return render(request, 'download.html')
+            
+            # Serve the file for download
+            file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
+            if not os.path.exists(file_path):
+                messages.error(request,"File not found.")
+                return render(request, 'download.html')
+            
+            with open(file_path, 'rb') as file:
+                response = HttpResponse(file.read(), content_type='application/octet-stream')
+                response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_name)}"'
                 return response
-        else:
-            return HttpResponse("Mot de passe incorrect", status=400)
-
-    # Afficher la page de téléchargement
-    return render(request, 'download.html', {'file_url': request.GET.get('file_url')})
+        
+        return render(request, 'download.html')
+    
+    except Exception as e:
+        messages.error(request,"Error processing your request.")
+        return render(request, 'download.html')

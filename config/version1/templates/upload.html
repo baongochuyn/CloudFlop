@@ -4,43 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload File</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 50px;
-            text-align: center;
-        }
-        form {
-            margin-top: 20px;
-            display: inline-block;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input {
-            margin-bottom: 10px;
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'version1/styles.css' %}">
+    
 </head>
 <body>
     <h1>Upload your file securely</h1>
+    {% if file_url %}
+        <!-- Afficher l'URL du fichier pour que l'émetteur ou le destinataire puisse y accéder -->
+        <p>Voici votre lien unique pour accéder au fichier : <a href="{{ file_url }}">{{ file_url }}</a></p>
+    {% endif %}
+
     <p>Choose a file and enter a password for encryption.</p>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -49,7 +26,7 @@
         
         <label for="password">Enter a password:</label>
         <input type="password" id="password" name="password" required>
-        <button type="submit">Upload</button>
+        <button type="submit" class="btn btn-success">Upload</button>
         
     </form>
 </body>

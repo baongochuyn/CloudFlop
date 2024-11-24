@@ -4,55 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Accéder au fichier</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 50px;
-            text-align: center;
-        }
-        form {
-            margin-top: 20px;
-            display: inline-block;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input {
-            margin-bottom: 10px;
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'version1/styles.css' %}">
 </head>
 <body>
     <h1>Entrez le mot de passe pour télécharger le fichier</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" id="message">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
-    <!-- Afficher l'URL du fichier pour que l'émetteur ou le destinataire puisse y accéder -->
-    <p>Voici votre lien unique pour accéder au fichier : <a href="{{ file_url }}">{{ file_url }}</a></p>
-
-    <form method="POST" action="{% url 'download' %}">
+    <form method="POST">
         {% csrf_token %}
-        <label for="file_url">Lien vers le fichier :</label>
-        <input type="text" id="file_url" name="file_url" value="{{ file_url }}" readonly><br><br>
         
         <label for="password">Mot de passe:</label>
         <input type="password" id="password" name="password" required>
-        <button type="submit">Télécharger</button>
+        <button type="submit" class="btn btn-success">Télécharger</button>
     </form>
 </body>
 </html>
