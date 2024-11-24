@@ -1,0 +1,13 @@
+<html>
+    <body>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="myfile">Select a file:</label>
+            <input type="file" id="myfile" name="document">
+            <label for="password">Enter a password</label>
+            <input type="password" id="password" name="password">
+            <button type="submit">Envoyer</button>
+        </form>
+        
+    </body>
+</html>
