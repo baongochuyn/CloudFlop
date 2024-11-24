@@ -45,7 +45,7 @@
     <!-- Afficher l'URL du fichier pour que l'émetteur ou le destinataire puisse y accéder -->
     <p>Voici votre lien unique pour accéder au fichier : <a href="{{ file_url }}">{{ file_url }}</a></p>
 
-    <form method="POST" action="{% url 'telechargement' %}">
+    <form method="POST" action="{% url 'download' %}">
         {% csrf_token %}
         <label for="file_url">Lien vers le fichier :</label>
         <input type="text" id="file_url" name="file_url" value="{{ file_url }}" readonly><br><br>

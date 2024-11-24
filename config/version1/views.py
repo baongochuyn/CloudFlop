@@ -27,23 +27,17 @@ def upload(request):
 
         # Sauvegarder le mot de passe chiffré dans un fichier
         encrypted_password_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name + '.key')
+        key_and_password = key + b" " + encrypted_password
         with open(encrypted_password_path, 'wb') as key_file:
-            key_file.write(encrypted_password)
+            key_file.write(key_and_password)
 
         # Générer un lien unique pour accéder au fichier
         file_url = request.build_absolute_uri('/media/uploads/' + file_name)
 
-        # #Nouvelle instance du modèle File pour enregistré le fichier téléchargé et sa clé chiffrée
-        # new_file = File(file=file, encrypted_password=encrypted_password.decode())
-        # new_file.save()
-
-        # generation du lien unique 
-        # file_url = f"{request.build_absolute_url('/')}{new_file.id}/"
-
         return render(request, 'download.html', {'file_url': file_url})
     return render(request, 'upload.html')
 
-def telechargement(request):
+def download(request):
     if request.method == 'POST':
         file_url = request.POST.get("file_url")  # Récupérer le lien du fichier
         password = request.POST.get("password").encode()  # Récupérer le mot de passe
@@ -64,10 +58,10 @@ def telechargement(request):
 
         # Lire la clé brute depuis le fichier (clé Fernet brute)
         with open(encrypted_password_path, 'rb') as key_file:
-            key = key_file.read()  # Clé Fernet brute
-        print('here')
+            key_and_password = key_file.read()  # Clé Fernet brute
+        [key, encrypted_password] = key_and_password.split(b" ")
         print(key)
-        print(len(key))
+        print(len(encrypted_password))
         cryptogram = Fernet(key)  # Utiliser cette clé brute pour déchiffrer le mot de passe
 
         # Déchiffrer le mot de passe
