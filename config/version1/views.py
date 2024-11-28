@@ -39,7 +39,7 @@ def upload(request):
         encrypted_metadata = base64.urlsafe_b64encode(metadata_str.encode('utf-8')).decode('utf-8')
         
         # Generate the unique encrypted URL
-        file_url = request.build_absolute_uri(f'/download/version1/{encrypted_metadata}/')
+        file_url = request.build_absolute_uri(f'/version1/download/{encrypted_metadata}/')
         
         return render(request, 'upload.html', {'file_url': file_url})
     
