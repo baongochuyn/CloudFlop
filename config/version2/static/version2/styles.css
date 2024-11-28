@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 50px;
+    text-align: center;
+}
+
+form {
+    margin-top: 20px;
+    display: inline-block;
+    text-align: left;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+input {
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+
+.messages {
+    /* colors for different message types can be listed here */
+    --color-info: #d9f0fc;
+    --color-info-hover: #b4e0f7;
+    --color-info-border: #50b6f5;
+  
+    /* Place on top of everything, at the right side of the page, without affecting any other elements.*/
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 0.5em;
+    pointer-events: none;
+  }

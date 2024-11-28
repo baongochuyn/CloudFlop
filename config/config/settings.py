@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap5',
-    'version1'
+    'version1',
+    'version2'
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,13 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+#Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
+EMAIL_PORT = 587  # Standard port for sending emails securely
+EMAIL_USE_TLS = True  # Use TLS for security
+EMAIL_HOST_USER = 'cloudflop49@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'htxi vxmn udpc heto'  # Your email passwordCloudFlop2024
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default "From" email address (use the same as EMAIL_HOST_USER)
