@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload File</title>
+    <title>CloudFlop - Version 1</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'version1/images/icon_cloudflop.png' %}">
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
-    {% load static %}
     <link rel="stylesheet" href="{% static 'version1/styles.css' %}">
-    
 </head>
 <body>
-    <h1>Upload your file securely</h1>
+    <img src="{% static 'version1/images/logo_cloudflop.png' %}" width="300" height="300">
+    <h1>Transférez vos fichiers de manière sécurisée avec CloudFlop</h1>
     {% if file_url %}
         <!-- Afficher l'URL du fichier pour que l'émetteur ou le destinataire puisse y accéder -->
-        <p>Voici votre lien unique pour accéder au fichier : <a href="{{ file_url }}">{{ file_url }}</a></p>
+        <p>Voici votre lien unique pour accéder au fichier : <a href="{{ file_url }}">cliquez ici</a></p>
     {% endif %}
 
-    <p>Choose a file and enter a password for encryption.</p>
+    <p>Choississez votre fichier et entrez un mot de passe pour le sécuriser.</p>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <label for="document">Select a file:</label>
+        <label for="document">Importer un fichier :</label>
         <input type="file" id="document" name="document" required>
         
-        <label for="password">Enter a password:</label>
+        <label for="password">Entrer un mot de passe :</label>
         <input type="password" id="password" name="password" required>
-        <button type="submit" class="btn btn-success">Upload</button>
+        <button type="submit" class="btn btn-success">Téléverser</button>
         
     </form>
 </body>
