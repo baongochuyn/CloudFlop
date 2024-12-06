@@ -40,14 +40,14 @@ def upload(request):
             # Generate the unique encrypted URL
             file_url = request.build_absolute_uri(f'/version2/download/{encrypted_metadata}/')
 
-            subject = 'Link to file'
-            message = 'the link to file '+ file_url
+            subject = 'Lien du fichier partagé'
+            message = 'Voici le lien du fichier : '+ file_url
             from_email = settings.DEFAULT_FROM_EMAIL 
             recipient_list = [receiver_email] 
 
             send_mail(subject, message, from_email, recipient_list)
         
-            messages.success(request,"Link send successfully")
+            messages.success(request,"Lien envoyé avec succès")
     
     return render(request, 'upload1.html')
 
@@ -68,8 +68,8 @@ def download(request, encrypted_metadata):
                 response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_name)}"'
                 return response
             else:
-                messages.error(request,"File can't be downloaded")
+                messages.error(request,"Le fichier ne peut plus être téléchargé")
         except File.DoesNotExist:
-            messages.error(request,"File not found.")
+            messages.error(request,"Fichier introuvable")
     
     return render(request, 'download1.html')
