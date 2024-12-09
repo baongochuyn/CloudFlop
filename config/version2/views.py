@@ -47,7 +47,7 @@ def upload(request):
 
             send_mail(subject, message, from_email, recipient_list)
         
-            messages.success(request,"Lien envoyé avec succès")
+            messages.success(request,"Lien envoyé avec succès.")
     
     return render(request, 'upload1.html')
 
@@ -68,8 +68,8 @@ def download(request, encrypted_metadata):
                 response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_name)}"'
                 return response
             else:
-                messages.error(request,"Le fichier ne peut plus être téléchargé")
+                messages.error(request,"Le fichier ne peut plus être téléchargé.")
         except File.DoesNotExist:
-            messages.error(request,"Fichier introuvable")
+            messages.error(request,"Fichier introuvable.")
     
     return render(request, 'download1.html')

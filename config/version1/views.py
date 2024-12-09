@@ -66,13 +66,13 @@ def download(request, encrypted_metadata):
             
             # Check if the passwords match
             if decrypted_password != password:
-                messages.error(request,"Invalid password")
+                messages.error(request,"Mot de passe invalide.")
                 return render(request, 'download.html')
             
             # Serve the file for download
             file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
             if not os.path.exists(file_path):
-                messages.error(request,"File not found.")
+                messages.error(request,"Fichier introuvable.")
                 return render(request, 'download.html')
             
             with open(file_path, 'rb') as file:
@@ -83,5 +83,5 @@ def download(request, encrypted_metadata):
         return render(request, 'download.html')
     
     except Exception as e:
-        messages.error(request,"Error processing your request.")
+        messages.error(request,"Erreur lors du traitement de la requête.")
         return render(request, 'download.html')
