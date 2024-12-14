@@ -15,14 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.shortcuts import redirect
 from django.urls import include, path
 from django.conf import settings
 from version1 import views
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('', lambda request: redirect('/version1/', permanent=False)),
+
     path('admin/', admin.site.urls),
-    path('', include('version1.urls')),
     path('version1/', include('version1.urls')),  # Incluez version1
     path('version2/', include('version2.urls')),  # Incluez version1
 
