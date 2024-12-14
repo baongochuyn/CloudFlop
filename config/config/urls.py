@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('upload/', views.upload)
+    path('', include('version1.urls')),
     path('version1/', include('version1.urls')),  # Incluez version1
     path('version2/', include('version2.urls')),  # Incluez version1
 
