@@ -7,7 +7,6 @@ from cryptography.fernet import Fernet
 from django.utils.crypto import get_random_string
 from django.conf import settings
 from django.contrib import messages
-import pprint
 import hashlib
 
 
@@ -37,13 +36,21 @@ def upload(request):
 
 
         file_name = f"{uuid.uuid4()}{os.path.splitext(file.name)[-1]}"
-        file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
+
+        file_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+        os.makedirs(file_dir, exist_ok=True) 
+
+        file_path = os.path.join(file_dir, file_name)
         with open(file_path, 'wb') as f:
             f.write(encrypted_data)
         
         # Save the encrypted password and key to a metadata dictionary
         metadata_id = get_random_string(32)
-        metadata_path = os.path.join(settings.MEDIA_ROOT, 'metadata', f"{metadata_id}.meta")
+
+        metadata_dir = os.path.join(settings.MEDIA_ROOT, 'metadata')
+        os.makedirs(metadata_dir, exist_ok=True)
+
+        metadata_path = os.path.join(metadata_dir, f"{metadata_id}.meta")
         with open(metadata_path, 'w') as meta_file:
             meta_file.write(f"{base64.urlsafe_b64encode(salt).decode()}|{file_name}")
 
@@ -58,7 +65,7 @@ def download(request, metadata_id):
     try:
         metadata_path = os.path.join(settings.MEDIA_ROOT, 'metadata', f"{metadata_id}.meta")
         if not os.path.exists(metadata_path):
-            messages.error(request, "Invalid link.")
+            messages.error(request, "Lien invalide")
             return render(request, 'download.html')
 
         with open(metadata_path, 'r') as meta_file:
@@ -78,7 +85,7 @@ def download(request, metadata_id):
 
             file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
             if not os.path.exists(file_path):
-                messages.error(request, "File not found.")
+                messages.error(request, "Fichier non trouvé")
                 return render(request, 'download.html')
 
             with open(file_path, 'rb') as file:
@@ -86,7 +93,7 @@ def download(request, metadata_id):
                 try:
                     decrypted_data = cryptogram.decrypt(encrypted_data)
                 except Exception:
-                    messages.error(request, "Invalid password.")
+                    messages.error(request, "Mot de passe invalide")
                     return render(request, 'download.html')
 
             response = HttpResponse(decrypted_data, content_type='application/octet-stream')
@@ -96,5 +103,5 @@ def download(request, metadata_id):
         return render(request, 'download.html')
 
     except Exception as e:
-        messages.error(request, "An error occurred while processing your request.")
+        messages.error(request, "Une erreur s'est produite.")
         return render(request, 'download.html')
