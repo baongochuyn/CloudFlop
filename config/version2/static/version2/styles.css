@@ -9,22 +9,50 @@ body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
     text-align: center;
 }
 
+/* Header styles */
 header {
-    position: absolute;
-    left: 20px;
+    width: 100%;
+    margin-top: -20px;
+    margin-bottom: -50px;
+    padding: 2px 0; /* Add spacing around the logo */
+    background-color: #f4f7f9; /* Optional: set a background color */
+    display: flex;
+    justify-content: center; /* Center the logo horizontally */
+    align-items: center;
 }
 
-img{
-    margin-top: -80px;
-    margin-bottom: -20px;
+/* Logo styles */
+header .logo {
+    max-width: 300px; /* Limit the logo width */
+    height: auto; /* Maintain aspect ratio */
+    display: block;
 }
 
+.check {
+    flex-direction: row;
+}
+
+.btn-check {
+    margin-left: 20px;
+}
+
+/* Main content area */
+main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px; /* Prevent content from being too close to the edges */
+    box-sizing: border-box;
+}
+
+/* Form styles */
 form {
     background: #fff;
     padding: 20px 30px;
@@ -84,6 +112,7 @@ form button:active {
     transform: scale(0.98);
 }
 
+/* Messages styles */
 .messages {
     position: fixed;
     top: 20px;

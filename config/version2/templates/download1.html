@@ -1,0 +1,43 @@
+<!-- password_form.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>CloudFlop - Version 2</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'version2/images/icon_cloudflop.png' %}">
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="{% static 'version2/styles.css' %}">
+    <script src="{% static 'version2/js/crypto-js.min.js' %}"></script>
+    <script src="{% static 'version2/js/download.js' %}"></script>
+</head>
+<body>
+    <header>
+        <img src="{% static 'version2/images/logo_cloudflop.png' %}" alt="CloudFlop Logo" class="logo">
+    </header>
+
+    <main>
+        <h1>Entrez le mot de passe pour télécharger le fichier</h1><br>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" id="message">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" id="download_form">
+            {% csrf_token %}
+            
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit" class="btn btn-success">Télécharger</button>
+        </form>
+    </main>
+</body>
+</html>

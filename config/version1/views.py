@@ -8,6 +8,7 @@ from cryptography.fernet import Fernet
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
+import pprint
 
 def upload(request):
     if request.method == 'POST':
@@ -21,7 +22,6 @@ def upload(request):
         
         # Create a unique file name
         file_name = str(uuid.uuid4()) + os.path.splitext(file.name)[-1]
-        file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
         
         # Save the file to the filesystem
         fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'uploads'))
@@ -39,7 +39,7 @@ def upload(request):
         encrypted_metadata = base64.urlsafe_b64encode(metadata_str.encode('utf-8')).decode('utf-8')
         
         # Generate the unique encrypted URL
-        file_url = request.build_absolute_uri(f'/download/{encrypted_metadata}/')
+        file_url = request.build_absolute_uri(f'/version1/download/{encrypted_metadata}/')
         
         return render(request, 'upload.html', {'file_url': file_url})
     
@@ -50,24 +50,29 @@ def download(request, encrypted_metadata):
         # Decode and split metadata
         metadata_str = base64.urlsafe_b64decode(encrypted_metadata).decode('utf-8')
         key, encrypted_password, file_name = metadata_str.split('|')
-        
+        pprint.pprint('ok')
+        pprint.pprint(encrypted_password)
+        pprint.pprint(file_name)
         # Get the password from the user
         if request.method == 'POST':
             password = request.POST["password"].encode()
-            
+            pprint.pprint(key)
+            pprint.pprint( Fernet(base64.urlsafe_b64decode(key)))
             # Decrypt the encrypted password using the key
             cryptogram = Fernet(base64.urlsafe_b64decode(key))
             decrypted_password = cryptogram.decrypt(encrypted_password.encode())
+            pprint.pprint('ici')
+            pprint.pprint(encrypted_password.encode())
             
             # Check if the passwords match
             if decrypted_password != password:
-                messages.error(request,"Invalid password")
+                messages.error(request,"Mot de passe invalide.")
                 return render(request, 'download.html')
             
             # Serve the file for download
             file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
             if not os.path.exists(file_path):
-                messages.error(request,"File not found.")
+                messages.error(request,"Fichier introuvable.")
                 return render(request, 'download.html')
             
             with open(file_path, 'rb') as file:
@@ -78,5 +83,5 @@ def download(request, encrypted_metadata):
         return render(request, 'download.html')
     
     except Exception as e:
-        messages.error(request,"Error processing your request.")
+        messages.error(request,"Erreur lors du traitement de la requête.")
         return render(request, 'download.html')

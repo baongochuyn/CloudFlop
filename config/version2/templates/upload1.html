@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudFlop - Version 2</title>
+    {% load static %}
+    <link rel="icon" href="{% static 'version2/images/icon_cloudflop.png' %}">
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="{% static 'version2/styles.css' %}">
+    <script src="{% static 'version2/js/crypto-js.min.js' %}"></script>
+    <script src="{% static 'version2/js/upload.js' %}"></script>
+</head>
+<body>
+    <header>
+        <img src="{% static 'version2/images/logo_cloudflop.png' %}" alt="CloudFlop Logo" class="logo">
+    </header>
+
+    <main>
+        <h1>Transférez vos fichiers de manière sécurisée avec CloudFlop</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" id="message">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" id="upload_form">
+            {% csrf_token %}
+            <label for="document">Importer un fichier :</label>
+            <input type="file" id="document" name="document" required>
+            
+            <label for="password">Entrer un mot de passe :</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="receiver_email">Email du destinataire :</label>
+            <input type="text" id="receiver_email" name="receiver_email" required>
+
+            <label for="expiration_date">Date d'expiration :</label>
+            <input type="date" id="expiration_date" name="expiration_date" required>
+
+            <div class="check">
+                <label for="unique_usage">Option d'usage unique du lien :</label>
+                <input type="checkbox" id="unique_usage" name="unique_usage" value="unique_usage">
+            <div>
+            <br>
+            <button type="submit" class="btn btn-success">Téléverser</button>
+        </form>
+    </main>
+</body>
+</html>
